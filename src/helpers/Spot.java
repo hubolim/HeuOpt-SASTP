@@ -2,6 +2,9 @@ package helpers;
 
 import java.util.HashMap;
 
+/**
+ * Representing a Spot of the Stamina Aware Sightseeing Tour Problem.
+ */
 public class Spot {
 	private double ID;
 	private String name;
@@ -24,6 +27,18 @@ public class Spot {
 		return spotY;
 	}
 
+	/**
+	 * Standard constructor
+	 * 
+	 * @param ID
+	 *            a double, representing the ID of the spot
+	 * @param name
+	 *            a string, representing the name of the spot
+	 * @param spotX
+	 *            a double, representing the x coordinate on a 2D map
+	 * @param spotY
+	 *            a double, representing the y coordinate on a 2D m
+	 */
 	public Spot(double ID, String name, double spotX, double spotY) {
 		this.ID = ID;
 		this.name = name;
@@ -31,6 +46,20 @@ public class Spot {
 		this.spotY = spotY;
 	}
 
+	/**
+	 * Method used to add a Method to a spot
+	 * 
+	 * @param name
+	 *            a string, representing the name of the method
+	 * @param satisfaction
+	 *            a double, representing the satisfaction of the method
+	 * @param time
+	 *            a double, representing the time of the method
+	 * @param stamina
+	 *            a double, representing the stamina of the method
+	 * 
+	 * @see Method
+	 */
 	public void addMethod(String name, double satisfaction, double time,
 			double stamina) {
 		String[] splittedName = name.split(":");

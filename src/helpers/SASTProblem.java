@@ -5,6 +5,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 
+/**
+ * This class represents an Problem instance of the SASTProblem
+ */
 public class SASTProblem {
 
 	private double maxtime = 0.0;
@@ -17,7 +20,7 @@ public class SASTProblem {
 	private double startY = 0.0;
 	private double numspot = 0.0;
 	private double nummeth = 0.0;
-	private HashMap<Double, Spot> spots = new HashMap<Double, Spot>(); 
+	private HashMap<Double, Spot> spots = new HashMap<Double, Spot>();
 
 	public double getMaxtime() {
 		return maxtime;
@@ -51,7 +54,15 @@ public class SASTProblem {
 		return startY;
 	}
 
-	public SASTProblem(String inputLocation) throws IOException, NumberFormatException, InvalidInputException {
+	/**
+	 * Standard constructor, which creates an representation of an SASTP out of
+	 * an problem instance file.
+	 * 
+	 * @param inputLocation
+	 *            a String path to the location of the problem instance file
+	 */
+	public SASTProblem(String inputLocation) throws IOException,
+			NumberFormatException, InvalidInputException {
 		FileReader fr = new FileReader(inputLocation);
 		BufferedReader br = new BufferedReader(fr);
 		String line = "";
@@ -92,12 +103,10 @@ public class SASTProblem {
 					&& counter < (10 + numspot + nummeth)) {
 				if (splittedInput[0].equals("spot")) {
 					double sID = Double.parseDouble(splittedInput[1]);
-					currentSpot = new Spot(
-							sID,
-							splittedInput[2],
+					currentSpot = new Spot(sID, splittedInput[2],
 							Double.parseDouble(splittedInput[3]),
 							Double.parseDouble(splittedInput[4]));
-					spots.put(sID, currentSpot);				
+					spots.put(sID, currentSpot);
 				} else if (splittedInput[0].equals("method")) {
 					if (currentSpot != null) {
 						currentSpot.addMethod(splittedInput[1],
@@ -113,12 +122,12 @@ public class SASTProblem {
 			}
 			counter++;
 		}
-		
-		if(invalidInput) {
+
+		if (invalidInput) {
 			throw new InvalidInputException();
 		}
 	}
-	
+
 	@Override
 	public String toString() {
 		String retString = "";

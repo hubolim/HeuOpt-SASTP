@@ -9,7 +9,7 @@ public class SASTPMain {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String inputLocation = "instances/sastp_10.prob";
+		String inputLocation = "instances/sastp_1000.prob";
 		try {
 			SASTProblem sastProblem = new SASTProblem(inputLocation);
 			System.out.println(sastProblem);

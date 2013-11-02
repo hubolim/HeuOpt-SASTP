@@ -1,5 +1,8 @@
 package helpers;
 
+/**
+ * Representing a Method of the Stamina Aware Sightseeing Tour Problem.
+ */
 public class Method {
 	private double ID;
 	private String name;
@@ -27,6 +30,20 @@ public class Method {
 		return stamina;
 	}
 
+	/**
+	 * Standard constructor
+	 * 
+	 * @param ID
+	 *            a double, representing the ID of the method
+	 * @param name
+	 *            a string, representing the name of the method
+	 * @param satisfaction
+	 *            a double, representing the satisfaction of the method
+	 * @param time
+	 *            a double, representing the time of the method
+	 * @param stamina
+	 *            a double, representing the stamina of the method
+	 */
 	public Method(double ID, String name, double satisfaction, double time,
 			double stamina) {
 		this.ID = ID;
