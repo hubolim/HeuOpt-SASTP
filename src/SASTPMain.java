@@ -1,7 +1,7 @@
 import java.io.IOException;
 
+import helpers.InvalidInputException;
 import helpers.SASTProblem;
-
 
 public class SASTPMain {
 
@@ -9,14 +9,17 @@ public class SASTPMain {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		System.out.println("Hello");
 		String inputLocation = "instances/sastp_10.prob";
 		try {
 			SASTProblem sastProblem = new SASTProblem(inputLocation);
+			System.out.println(sastProblem);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out
+					.println("Input file not found or input file is corrupted");
+		} catch (InvalidInputException dd) {
+			System.out.println("Invalid input, check the input file format");
+		} catch (NumberFormatException nfe) {
+			System.out.println("Invalid input, check the input file format");
 		}
 
 	}
