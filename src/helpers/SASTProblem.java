@@ -128,6 +128,118 @@ public class SASTProblem {
 		}
 	}
 
+	/**
+	 * Returns the distance between two pairs(x1,y1)(x2,y2) of coordinates
+	 * 
+	 * @param x1
+	 *            a double, representing the x coordinate of the first pair
+	 * @param y1
+	 *            a double, representing the y coordinate of the first pair
+	 * @param x2
+	 *            a double, representing the x coordinate of the second pair
+	 * @param y2
+	 *            a double, representing the y coordinate of the second pair
+	 * 
+	 * @return double, distance between two Spots
+	 */
+	public double getDistance(double x1, double y1, double x2, double y2) {
+		double dx = x1 - x2;
+		double dy = y1 - y1;
+		return Math.sqrt((dx * dx) + (dy * dy));
+	}
+
+	/**
+	 * Returns the distance between two Spots
+	 * 
+	 * @param A
+	 *            a Spot, representing the start
+	 * @param B
+	 *            a Spot, representing the end
+	 * 
+	 * @return double, distance between two Spots
+	 * @see Spot
+	 */
+	public double getDistance(Spot A, Spot B) {
+		return getDistance(A.getSpotX(), A.getSpotY(), B.getSpotX(),
+				B.getSpotY());
+	}
+
+	/**
+	 * Returns the satisfaction cost of a travel between two Spo
+	 * 
+	 * @param x1
+	 *            a double, representing the x coordinate of the first pair
+	 * @param y1
+	 *            a double, representing the y coordinate of the first pair
+	 * @param x2
+	 *            a double, representing the x coordinate of the second pair
+	 * @param y2
+	 *            a double, representing the y coordinate of the second pair
+	 * 
+	 * @return double, travel satisfaction between two Spots
+	 */
+	public double getTravelSatisfactionCost(double x1, double y1, double x2, double y2) {
+		return alpha * getDistance(x1, y1, x2, y2);
+	}
+	
+	/**
+	 * Returns the satisfaction cost of a travel between two Spots
+	 * 
+	 * @param A
+	 *            a Spot, representing the start
+	 * @param B
+	 *            a Spot, representing the end
+	 * 
+	 * @return double, travel satisfaction between two Spots
+	 * @see Spot
+	 */
+	public double getTravelSatisfactionCost(Spot A, Spot B) {
+		return alpha * getDistance(A, B);
+	}
+
+	/**
+	 * Returns the travel time between two Spots
+	 * 
+	 * @param x1
+	 *            a double, representing the x coordinate of the first pair
+	 * @param y1
+	 *            a double, representing the y coordinate of the first pair
+	 * @param x2
+	 *            a double, representing the x coordinate of the second pair
+	 * @param y2
+	 *            a double, representing the y coordinate of the second pair
+	 * 
+	 * @return double, travel time between two Spots
+	 */
+	public double getTravelTime(double x1, double y1, double x2, double y2) {
+		return getDistance(x1, y1, x2, y2) / speed;
+	}
+	
+	/**
+	 * Returns the travel time between two Spots
+	 * 
+	 * @param A
+	 *            a Spot, representing the start
+	 * @param B
+	 *            a Spot, representing the end
+	 * 
+	 * @return double, travel time between two Spots
+	 * @see Spot
+	 */
+	public double getTravelTime(Spot A, Spot B) {
+		return getDistance(A, B) / speed;
+	}
+
+	/**
+	 * Returns the spots of a problem instance.
+	 * 
+	 * @return HashMap<Double, Spot>, all spots that belong to the problem
+	 *         instance
+	 */
+	public HashMap<Double, Spot> getSpots() {
+		return spots;
+	}
+
 	@Override
 	public String toString() {
 		String retString = "";

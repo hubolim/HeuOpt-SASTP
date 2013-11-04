@@ -1,5 +1,7 @@
 import java.io.IOException;
 
+import exercise1.GreedyConstruction;
+
 import helpers.InvalidInputException;
 import helpers.SASTProblem;
 
@@ -10,8 +12,9 @@ public class SASTPMain {
 	 */
 	public static void main(String[] args) {
 		String inputLocation = "instances/sastp_1000.prob";
+		SASTProblem sastProblem = null;
 		try {
-			SASTProblem sastProblem = new SASTProblem(inputLocation);
+			sastProblem = new SASTProblem(inputLocation);
 			System.out.println(sastProblem);
 		} catch (IOException e) {
 			System.out
@@ -20,6 +23,9 @@ public class SASTPMain {
 			System.out.println("Invalid input, check the input file format");
 		} catch (NumberFormatException nfe) {
 			System.out.println("Invalid input, check the input file format");
+		}
+		if (sastProblem != null) {
+			GreedyConstruction gc = new GreedyConstruction(sastProblem);
 		}
 
 	}

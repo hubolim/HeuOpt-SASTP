@@ -68,6 +68,15 @@ public class Spot {
 		methods.put(mID, newMethod);
 	}
 
+	/**
+	 * Returns the methods of a spot.
+	 * 
+	 * @return HashMap<Double, Method>, all methods that belong to the spot
+	 */
+	public HashMap<Double, Method> getMethods() {
+		return methods;
+	}
+
 	@Override
 	public String toString() {
 		String retString = "Spot " + ID + ": " + name + ", SpotX: " + spotX
