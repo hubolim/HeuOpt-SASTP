@@ -8,60 +8,98 @@ import helpers.SASTPSolution;
 import helpers.SASTProblem;
 import helpers.Spot;
 
+/**
+ * This class produces a SASTPSolution out of a SASTProblem using a greedy
+ * heuristic approach.
+ */
 public class GreedyConstruction {
-	//test
 	private SASTProblem problem;
 	private SASTPSolution solution;
 
+	/**
+	 * Standard constructor, which creates a SASTPSolution out of a SASTProblem,
+	 * using a greedy heuristic approach.
+	 * 
+	 * @param problem
+	 *            a SASTProblem representing the problem instance
+	 */
 	public GreedyConstruction(SASTProblem problem) {
 		this.problem = problem;
-		double timeLeft = problem.getMaxtime();
-		double staminaLeft = problem.getInitstamina();
+		// Start coordinates
 		double currentX = problem.getStartX();
 		double currentY = problem.getStartY();
+
+		// Maximum satisfaction per time for each iteration.
 		double maxSatisfactionPerTime = 0.0;
+		// Maximum satisfaction per stamina for each iteration.
 		double maxSatisfactionPerStamina = 0.0;
+
+		// The solution for the problem instance
 		solution = new SASTPSolution(problem);
 		HashMap<Double, Spot> spots = problem.getSpots();
-		boolean running = true;
-		boolean restingAllowed = false; // Rest at start not possible
 
-		int counter = 1;
+		// Running as long as there is a possibility to visit more Spots.
+		boolean running = true;
+		// Resting at start not possible
+		boolean restingAllowed = false;
+
+		/*
+		 * Iterates from the current position through all spots and methods and
+		 * selects the spot with the best satisfaction per time and satisfaction
+		 * per stamina relations, and which do not break the time and stamina
+		 * constraints.
+		 */
+		// Running as long as there is a possibility to visit more Spots.
 		while (running) {
+			// List of possible next stops, so called candidates.
 			ArrayList<Candidate> candidates = new ArrayList<Candidate>();
+			// Iteration through all spots.
 			for (double spotKey : spots.keySet()) {
+				// Next possible spot.
 				Spot possibleNextSpot = spots.get(spotKey);
-				double distance = problem.getDistance(currentX, currentY,
-						possibleNextSpot.getSpotX(),
-						possibleNextSpot.getSpotY());
-				double satisfactionPenalty = problem.getTravelSatisfactionCost(
-						currentX, currentY, possibleNextSpot.getSpotX(),
-						possibleNextSpot.getSpotY());
-				double travelTime = problem.getTravelTime(currentX, currentY,
-						possibleNextSpot.getSpotX(),
-						possibleNextSpot.getSpotY());
-				HashMap<Double, Method> methods = possibleNextSpot.getMethods();
-				for (double methodKey : methods.keySet()) {
-					Method possibleNextMethod = methods.get(methodKey);
-					if (!solution.isSpotMethodAlreadyVisited(possibleNextSpot,
-							possibleNextMethod)) {
+				// If the spot has been already visited, skip it.
+				if (!solution.isSpotAlreadyVisited(possibleNextSpot)) {
+					// Satisfaction penalty of the travel.
+					double satisfactionPenalty = problem
+							.getTravelSatisfactionCost(currentX, currentY,
+									possibleNextSpot.getSpotX(),
+									possibleNextSpot.getSpotY());
+					// Time needed for the travel.
+					double travelTime = problem.getTravelTime(currentX,
+							currentY, possibleNextSpot.getSpotX(),
+							possibleNextSpot.getSpotY());
+					HashMap<Double, Method> methods = possibleNextSpot
+							.getMethods();
+
+					// Time needed from the next possible spot back to the
+					// start.
+					double timeBackHome = problem.getTravelTime(
+							possibleNextSpot.getSpotX(),
+							possibleNextSpot.getSpotY(), problem.getStartX(),
+							problem.getStartY());
+
+					// Iteration through all the spot`s methods.
+					for (double methodKey : methods.keySet()) {
+						// Next possible method of the spot.
+						Method possibleNextMethod = methods.get(methodKey);
+						// Satisfaction gained through the method.
 						double methodSatisfaction = possibleNextMethod
 								.getSatisfaction();
+						// Stamina cost of the method.
 						double methodStaminaPenalty = possibleNextMethod
 								.getStamina();
+						// Time needed for the method.
 						double methodTimePenalty = possibleNextMethod.getTime();
-
-						double timeBackHome = problem.getTravelTime(
-								possibleNextSpot.getSpotX(),
-								possibleNextSpot.getSpotY(),
-								problem.getStartX(), problem.getStartY());
 
 						double satisfaction = methodSatisfaction
 								- satisfactionPenalty;
 						double timeNeeded = travelTime + methodTimePenalty;
 
+						// Check if the visit of the possible next spot is valid
 						if (checkIfSpotPossible(timeNeeded + timeBackHome,
 								methodStaminaPenalty, restingAllowed)) {
+							// Add the spot, method an resting time to the
+							// candidates.
 							Candidate cand = new Candidate(possibleNextSpot,
 									possibleNextMethod,
 									(satisfaction / timeNeeded),
@@ -71,6 +109,9 @@ public class GreedyConstruction {
 											methodStaminaPenalty,
 											restingAllowed));
 							candidates.add(cand);
+							// Calculating the the maximum satisfaction per time
+							// and satisfaction per stamina of the current
+							// iteration.
 							if (maxSatisfactionPerTime <= (satisfaction / timeNeeded)) {
 								maxSatisfactionPerTime = (satisfaction / timeNeeded);
 							}
@@ -84,8 +125,18 @@ public class GreedyConstruction {
 			double score;
 			double maxScore = 0.0;
 			Candidate bestCandidate = null;
+			// If no candidates are found the greedy search is over.
 			if (!candidates.isEmpty()) {
+				// Select the best candidate with the best score.
 				for (Candidate cand : candidates) {
+					/*
+					 * The score is the satisfaction per time normalized with
+					 * the maximum satisfaction per time of the current
+					 * iteration multiplied with a constant factor and
+					 * summarized with the satisfaction per stamina normalized
+					 * with the maximum satisfaction per stamina of the current
+					 * iteration multiplied with a constant factor.
+					 */
 					score = (cand.getSattime() / maxSatisfactionPerTime * 10)
 							+ (cand.getSatsta() / maxSatisfactionPerStamina * 10);
 					if (score > maxScore) {
@@ -97,26 +148,39 @@ public class GreedyConstruction {
 				running = false;
 			}
 
+			// If candidates were found.
 			if (running) {
-				solution.addStop(bestCandidate.getSpot(),
-						bestCandidate.getMethod(), 0.0);
-				currentX = bestCandidate.getSpot().getSpotX();
-				currentY = bestCandidate.getSpot().getSpotY();
 				if (restingAllowed) {
+					// Add the resting time to the visit before.
 					solution.addRest(bestCandidate.getRestTime());
 				} else {
 					restingAllowed = true;
 				}
+				// Add the candidate as the next stop, and define it as the
+				// current location.
+				solution.addStop(bestCandidate.getSpot(),
+						bestCandidate.getMethod(), 0.0);
+				currentX = bestCandidate.getSpot().getSpotX();
+				currentY = bestCandidate.getSpot().getSpotY();
 			}
-
-			// System.out.println("--->: " + maxScore);
-			System.out.println("Counter: " + counter);
-			counter++;
 		}
 		System.out.println("--->: " + solution.getTimeLeft());
 		solution.checkSolution();
 	}
 
+	/**
+	 * Checks if a spot is valid to visit.
+	 * 
+	 * @param timeNeeded
+	 *            a double, the time needed from the current location to the
+	 *            spot, the method time and the travel time back to the start
+	 *            point.
+	 * @param staminaNeeded
+	 *            a double, the stamina needed for the next spot´s method.
+	 * @param restingAllowed
+	 *            a boolean, whether resting is allowed or not.
+	 * @return boolean, whether the next spot is valid to visit.
+	 */
 	private boolean checkIfSpotPossible(double timeNeeded,
 			double staminaNeeded, boolean restingAllowed) {
 		if (timeNeeded <= solution.getTimeLeft()
@@ -127,7 +191,7 @@ public class GreedyConstruction {
 		} else if (restingAllowed) {
 			double spareTime = solution.getTimeLeft() - timeNeeded;
 			double switchStamina = staminaNeeded - solution.getStaminaLeft();
-			// switchTime = restingTime
+			// switchTime is the restingTime
 			if (switchStamina <= problem.getMaxstamina()) {
 				double switchTime = switchStamina / problem.getHabitus();
 				if (spareTime >= switchTime) {
@@ -143,6 +207,19 @@ public class GreedyConstruction {
 		}
 	}
 
+	/**
+	 * Checks if a spot is valid to visit and return the needed resting time.
+	 * 
+	 * @param timeNeeded
+	 *            a double, the time needed from the current location to the
+	 *            spot, the method time and the travel time back to the start
+	 *            point.
+	 * @param staminaNeeded
+	 *            a double, the stamina needed for the next spot´s method.
+	 * @param restingAllowed
+	 *            a boolean, whether resting is allowed or not.
+	 * @return double, the needed resting time to visit the spot.
+	 */
 	private double neededRestingTime(double timeNeeded, double staminaNeeded,
 			boolean restingAllowed) {
 		if (timeNeeded <= solution.getTimeLeft()
@@ -169,6 +246,10 @@ public class GreedyConstruction {
 		}
 	}
 
+	/**
+	 * Represents a valid Spot Method pair, which are candidates for a next
+	 * visit.
+	 */
 	private class Candidate {
 		private Spot spot;
 		private Method method;

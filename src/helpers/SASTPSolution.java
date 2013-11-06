@@ -65,10 +65,19 @@ public class SASTPSolution {
 		return satisfaction;
 	}
 
+	public boolean isSpotAlreadyVisited(Spot spot) {
+		for (int i = 0; i < tour.size(); i++) {
+			if (tour.get(i).getSpot().equals(spot)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public boolean isSpotMethodAlreadyVisited(Spot spot, Method method) {
 		for (int i = 0; i < tour.size(); i++) {
 			if (tour.get(i).getSpot().equals(spot)
-					&& tour.get(i).getMethod().equals(method)) {
+			 && tour.get(i).getMethod().equals(method)) {
 				return true;
 			}
 		}
@@ -105,10 +114,22 @@ public class SASTPSolution {
 			currentSatisfaction = currentSatisfaction
 					+ tour.get(i).getMethod().getSatisfaction()
 					- (distance * alpha);
-			System.out.println("After stop with rest " + i + 1 + ": Stamina "
-					+ currentStamina + ", Time " + currentTime
-					+ " Satisfaction: " + currentSatisfaction);
+			System.out
+					.println("After stop with rest "
+							+ i
+							+ ": StaminaBefore "
+							+ (currentStamina - (tour.get(i).getRestingTime() * habitus))
+							+ ", Stamina " + currentStamina + ", Time "
+							+ currentTime + " Satisfaction: "
+							+ currentSatisfaction);
+			currentX = tour.get(i).getSpot().getSpotX();
+			currentY = tour.get(i).getSpot().getSpotY();
 		}
+		double distance = problem.getDistance(currentX, currentY,
+				problem.getStartX(), problem.getStartY());
+		currentTime = currentTime - (distance / speed);
+		System.out.println("End Stamina: " + currentStamina + ", End Time: "
+				+ currentTime);
 	}
 
 	private class Stop {

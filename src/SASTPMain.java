@@ -11,7 +11,7 @@ public class SASTPMain {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String inputLocation = "instances/sastp_50.prob";
+		String inputLocation = "instances/sastp_100.prob";
 		SASTProblem sastProblem = null;
 		try {
 			sastProblem = new SASTProblem(inputLocation);
