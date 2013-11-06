@@ -2,22 +2,56 @@ package helpers;
 
 import java.util.ArrayList;
 
+/**
+ * This class represents an solution for a SASTProblem.
+ */
 public class SASTPSolution {
 	private SASTProblem problem;
 	private ArrayList<Stop> tour = new ArrayList<Stop>();
 
+	/**
+	 * Standard constructor
+	 * 
+	 * @param problem
+	 *            a SASTProblem problem instance
+	 * @see SASTProblem
+	 */
 	public SASTPSolution(SASTProblem problem) {
 		this.problem = problem;
 	}
 
+	/**
+	 * Adds a stop to the tour
+	 * 
+	 * @param spot
+	 *            the current Spot used
+	 * @param method
+	 *            the current Method used
+	 * @param restingTime
+	 *            double, the time rested
+	 * 
+	 * @see Spot
+	 * @see Method
+	 */
 	public void addStop(Spot spot, Method method, double restingTime) {
 		tour.add(new Stop(spot, method, restingTime));
 	}
 
+	/**
+	 * Adds a rest to the last stop of the tour
+	 * 
+	 * @param restingTime
+	 *            double, the time rested
+	 */
 	public void addRest(double restingTime) {
 		tour.get(tour.size() - 1).setRestingTime(restingTime);
 	}
 
+	/**
+	 * Returns the time that is left of the tour
+	 * 
+	 * @return double the time left of the current tour
+	 */
 	public double getTimeLeft() {
 		double currentX = problem.getStartX();
 		double currentY = problem.getStartY();
@@ -38,6 +72,11 @@ public class SASTPSolution {
 		return problem.getMaxtime() - methodTime - restTime - travelTime;
 	}
 
+	/**
+	 * Returns the stamina left of the tour
+	 * 
+	 * @return double the stamina left of the current tour
+	 */
 	public double getStaminaLeft() {
 		double staminaLeft = problem.getInitstamina();
 		for (int i = 0; i < tour.size(); i++) {
@@ -48,6 +87,11 @@ public class SASTPSolution {
 		return staminaLeft;
 	}
 
+	/**
+	 * Returns the current statisfaction of the tour
+	 * 
+	 * @return double the satisfaction of the current tour
+	 */
 	public double getSatisfaction() {
 		double currentX = problem.getStartX();
 		double currentY = problem.getStartY();
@@ -65,6 +109,14 @@ public class SASTPSolution {
 		return satisfaction;
 	}
 
+	/**
+	 * Returns a boolean whether the Spot was already visited
+	 * 
+	 * @param spot
+	 *            the spot that is checked whther it was already visited
+	 * 
+	 * @return boolean whether the Spot was already visited
+	 */
 	public boolean isSpotAlreadyVisited(Spot spot) {
 		for (int i = 0; i < tour.size(); i++) {
 			if (tour.get(i).getSpot().equals(spot)) {
@@ -73,11 +125,11 @@ public class SASTPSolution {
 		}
 		return false;
 	}
-	
+
 	public boolean isSpotMethodAlreadyVisited(Spot spot, Method method) {
 		for (int i = 0; i < tour.size(); i++) {
 			if (tour.get(i).getSpot().equals(spot)
-			 && tour.get(i).getMethod().equals(method)) {
+					&& tour.get(i).getMethod().equals(method)) {
 				return true;
 			}
 		}
