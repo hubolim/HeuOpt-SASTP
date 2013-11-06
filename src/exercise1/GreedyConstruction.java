@@ -9,6 +9,7 @@ import helpers.SASTProblem;
 import helpers.Spot;
 
 public class GreedyConstruction {
+	//test
 	private SASTProblem problem;
 	private SASTPSolution solution;
 
