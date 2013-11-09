@@ -1,5 +1,6 @@
 package helpers;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 /**
@@ -63,13 +64,26 @@ public class SASTPSolution {
 			methodTime = methodTime + tour.get(i).getMethod().getTime();
 			restTime = restTime + tour.get(i).getRestingTime();
 			travelTime = travelTime
-					+ (problem.getDistance(currentX, currentY, tour.get(i)
+					+ problem.getTravelTime(currentX, currentY, tour.get(i)
 							.getSpot().getSpotX(), tour.get(i).getSpot()
-							.getSpotY()) / problem.getSpeed());
+							.getSpotY());
 			currentX = tour.get(i).getSpot().getSpotX();
 			currentY = tour.get(i).getSpot().getSpotY();
 		}
 		return problem.getMaxtime() - methodTime - restTime - travelTime;
+	}
+
+	/**
+	 * Returns the final time that is left of the finished tour.
+	 * 
+	 * @return double the final time left of the finished tour
+	 */
+	public double getFinalTimeLeft() {
+		return getTimeLeft()
+				- problem.getTravelTime(tour.get(tour.size() - 1).getSpot()
+						.getSpotX(), tour.get(tour.size() - 1).getSpot()
+						.getSpotY(), problem.getStartX(), problem.getStartY());
+
 	}
 
 	/**
@@ -88,7 +102,7 @@ public class SASTPSolution {
 	}
 
 	/**
-	 * Returns the current statisfaction of the tour
+	 * Returns the current satisfaction of the tour
 	 * 
 	 * @return double the satisfaction of the current tour
 	 */
@@ -97,12 +111,12 @@ public class SASTPSolution {
 		double currentY = problem.getStartY();
 		double satisfaction = 0.0;
 		for (int i = 0; i < tour.size(); i++) {
-			double travelDistance = problem.getDistance(currentX, currentY,
-					tour.get(i).getSpot().getSpotX(), tour.get(i).getSpot()
-							.getSpotY());
+			double travelSatisfaction = problem.getTravelSatisfactionCost(
+					currentX, currentY, tour.get(i).getSpot().getSpotX(), tour
+							.get(i).getSpot().getSpotY());
 			satisfaction = satisfaction
 					+ tour.get(i).getMethod().getSatisfaction();
-			satisfaction = satisfaction - (travelDistance * problem.getAlpha());
+			satisfaction = satisfaction - travelSatisfaction;
 			currentX = tour.get(i).getSpot().getSpotX();
 			currentY = tour.get(i).getSpot().getSpotY();
 		}
@@ -110,10 +124,24 @@ public class SASTPSolution {
 	}
 
 	/**
+	 * Returns the final satisfaction of the finished tour.
+	 * 
+	 * @return double the final satisfaction of the finished tour
+	 */
+	public double getFinalSatisfaction() {
+		return getSatisfaction()
+				- problem.getTravelSatisfactionCost(tour.get(tour.size() - 1)
+						.getSpot().getSpotX(), tour.get(tour.size() - 1)
+						.getSpot().getSpotY(), problem.getStartX(),
+						problem.getStartY());
+
+	}
+
+	/**
 	 * Returns a boolean whether the Spot was already visited
 	 * 
 	 * @param spot
-	 *            the spot that is checked whther it was already visited
+	 *            the spot that is checked whether it was already visited
 	 * 
 	 * @return boolean whether the Spot was already visited
 	 */
@@ -126,6 +154,16 @@ public class SASTPSolution {
 		return false;
 	}
 
+	/**
+	 * Returns a boolean whether the Spot´s Method was already visited
+	 * 
+	 * @param spot
+	 *            the spot that is checked whether it was already visited
+	 * @param method
+	 *            the method that is checked whether it was already visited
+	 * 
+	 * @return boolean whether the Spot´s Method was already visited
+	 */
 	public boolean isSpotMethodAlreadyVisited(Spot spot, Method method) {
 		for (int i = 0; i < tour.size(); i++) {
 			if (tour.get(i).getSpot().equals(spot)
@@ -136,7 +174,12 @@ public class SASTPSolution {
 		return false;
 	}
 
-	public void checkSolution() {
+	/**
+	 * Checks if the solution is valid.
+	 * 
+	 * @return boolean, true if the solution is valid
+	 */
+	public boolean checkSolution() {
 		double startStamina = problem.getInitstamina();
 		double maxStamina = problem.getMaxstamina();
 		double maxTime = problem.getMaxtime();
@@ -148,13 +191,14 @@ public class SASTPSolution {
 		double currentStamina = startStamina;
 		double currentTime = maxTime;
 		double currentSatisfaction = 0.0;
-
-		System.out.println("Start Stamina: " + currentStamina
-				+ ", Start Time: " + currentTime + ", Max Stamina: "
-				+ maxStamina);
+		ArrayList<Spot> visitedSPots = new ArrayList<Spot>();
 		for (int i = 0; i < tour.size(); i++) {
 			Spot spot = tour.get(i).getSpot();
-			Method method = tour.get(i).getMethod();
+			if (visitedSPots.contains(spot)) {
+				return false;
+			} else {
+				visitedSPots.add(spot);
+			}
 			double distance = problem.getDistance(currentX, currentY,
 					spot.getSpotX(), spot.getSpotY());
 			currentTime = currentTime - (distance / speed)
@@ -166,24 +210,66 @@ public class SASTPSolution {
 			currentSatisfaction = currentSatisfaction
 					+ tour.get(i).getMethod().getSatisfaction()
 					- (distance * alpha);
-			System.out
-					.println("After stop with rest "
-							+ i
-							+ ": StaminaBefore "
-							+ (currentStamina - (tour.get(i).getRestingTime() * habitus))
-							+ ", Stamina " + currentStamina + ", Time "
-							+ currentTime + " Satisfaction: "
-							+ currentSatisfaction);
+			if ((currentStamina - (tour.get(i).getRestingTime() * habitus) < 0.0)
+					|| (currentTime < 0.0) || (currentStamina > maxStamina)) {
+				return false;
+			}
 			currentX = tour.get(i).getSpot().getSpotX();
 			currentY = tour.get(i).getSpot().getSpotY();
 		}
 		double distance = problem.getDistance(currentX, currentY,
 				problem.getStartX(), problem.getStartY());
 		currentTime = currentTime - (distance / speed);
-		System.out.println("End Stamina: " + currentStamina + ", End Time: "
-				+ currentTime);
+		currentSatisfaction = currentSatisfaction - (distance * alpha);
+		if ((currentStamina < 0.0) || (currentTime < 0.0)
+				|| (currentStamina > maxStamina)
+				|| (roundTwoDecimals(getFinalTimeLeft()) != roundTwoDecimals(currentTime))
+				|| (roundTwoDecimals(getFinalSatisfaction()) != roundTwoDecimals(currentSatisfaction))
+				|| (roundTwoDecimals(getStaminaLeft()) != roundTwoDecimals(currentStamina))) {
+			return false;
+		}
+		return true;
 	}
 
+	private double roundTwoDecimals(double d) {
+		DecimalFormat twoDForm = new DecimalFormat("#.##");
+		return Double.valueOf(twoDForm.format(d).replace(',', '.'));
+	}
+
+	/*
+	 * public void checkSolution() { double startStamina =
+	 * problem.getInitstamina(); double maxStamina = problem.getMaxstamina();
+	 * double maxTime = problem.getMaxtime(); double currentX =
+	 * problem.getStartX(); double currentY = problem.getStartY(); double alpha
+	 * = problem.getAlpha(); double habitus = problem.getHabitus(); double speed
+	 * = problem.getSpeed(); double currentStamina = startStamina; double
+	 * currentTime = maxTime; double currentSatisfaction = 0.0;
+	 * 
+	 * System.out.println("Start Stamina: " + currentStamina + ", Start Time: "
+	 * + currentTime + ", Max Stamina: " + maxStamina); for (int i = 0; i <
+	 * tour.size(); i++) { Spot spot = tour.get(i).getSpot(); Method method =
+	 * tour.get(i).getMethod(); double distance = problem.getDistance(currentX,
+	 * currentY, spot.getSpotX(), spot.getSpotY()); currentTime = currentTime -
+	 * (distance / speed) - tour.get(i).getRestingTime() -
+	 * tour.get(i).getMethod().getTime(); currentStamina = currentStamina -
+	 * tour.get(i).getMethod().getStamina() + (tour.get(i).getRestingTime() *
+	 * habitus); currentSatisfaction = currentSatisfaction +
+	 * tour.get(i).getMethod().getSatisfaction() - (distance * alpha);
+	 * System.out .println("After stop with rest " + i + ": StaminaBefore " +
+	 * (currentStamina - (tour.get(i).getRestingTime() * habitus)) +
+	 * ", Stamina " + currentStamina + ", Time " + currentTime +
+	 * " Satisfaction: " + currentSatisfaction); currentX =
+	 * tour.get(i).getSpot().getSpotX(); currentY =
+	 * tour.get(i).getSpot().getSpotY(); } double distance =
+	 * problem.getDistance(currentX, currentY, problem.getStartX(),
+	 * problem.getStartY()); currentTime = currentTime - (distance / speed);
+	 * System.out.println("End Stamina: " + currentStamina + ", End Time: " +
+	 * currentTime); }
+	 */
+
+	/**
+	 * Represents a stop of the tour. (which Spot, Method and resting time)
+	 */
 	private class Stop {
 		private Spot spot;
 		private Method method;

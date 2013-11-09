@@ -11,7 +11,7 @@ public class SASTPMain {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String inputLocation = "instances/sastp_100.prob";
+		String inputLocation = "instances/sastp_200.prob";
 		SASTProblem sastProblem = null;
 		try {
 			sastProblem = new SASTProblem(inputLocation);
@@ -26,6 +26,11 @@ public class SASTPMain {
 		}
 		if (sastProblem != null) {
 			GreedyConstruction gc = new GreedyConstruction(sastProblem);
+			if(gc.getSolution().checkSolution()) {
+				System.out.println("The produced solution is valid.");
+			} else {
+				System.out.println("The produced solution is invalid!");
+			}
 		}
 
 	}

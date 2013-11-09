@@ -16,6 +16,10 @@ public class GreedyConstruction {
 	private SASTProblem problem;
 	private SASTPSolution solution;
 
+	public SASTPSolution getSolution() {
+		return solution;
+	}
+
 	/**
 	 * Standard constructor, which creates a SASTPSolution out of a SASTProblem,
 	 * using a greedy heuristic approach.
@@ -25,6 +29,11 @@ public class GreedyConstruction {
 	 */
 	public GreedyConstruction(SASTProblem problem) {
 		this.problem = problem;
+
+		// timeCounter can be printed for the user, to see that the system is
+		// working. It is not used by the algorithm!
+		double timeCounter = problem.getMaxtime();
+
 		// Start coordinates
 		double currentX = problem.getStartX();
 		double currentY = problem.getStartY();
@@ -153,6 +162,9 @@ public class GreedyConstruction {
 				if (restingAllowed) {
 					// Add the resting time to the visit before.
 					solution.addRest(bestCandidate.getRestTime());
+					
+					// Update timeCounter, It is not used by the algorithm!
+					timeCounter = timeCounter - bestCandidate.getRestTime();
 				} else {
 					restingAllowed = true;
 				}
@@ -160,12 +172,20 @@ public class GreedyConstruction {
 				// current location.
 				solution.addStop(bestCandidate.getSpot(),
 						bestCandidate.getMethod(), 0.0);
+				
+				// Update timeCounter, It is not used by the algorithm!
+				timeCounter = timeCounter
+						- problem.getTravelTime(currentX, currentY,
+								bestCandidate.getSpot().getSpotX(),
+								bestCandidate.getSpot().getSpotY())
+						- bestCandidate.getMethod().getTime();
+				
 				currentX = bestCandidate.getSpot().getSpotX();
 				currentY = bestCandidate.getSpot().getSpotY();
+
 			}
+			System.out.println("Time left: "+timeCounter);
 		}
-		System.out.println("--->: " + solution.getTimeLeft());
-		solution.checkSolution();
 	}
 
 	/**
