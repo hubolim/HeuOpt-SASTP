@@ -144,7 +144,7 @@ public class SASTProblem {
 	 */
 	public double getDistance(double x1, double y1, double x2, double y2) {
 		double dx = x1 - x2;
-		double dy = y1 - y1;
+		double dy = y1 - y2;
 		return Math.sqrt((dx * dx) + (dy * dy));
 	}
 

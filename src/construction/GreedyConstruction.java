@@ -1,4 +1,4 @@
-package exercise1;
+package construction;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,18 +16,17 @@ public class GreedyConstruction {
 	private SASTProblem problem;
 	private SASTPSolution solution;
 
-	public SASTPSolution getSolution() {
-		return solution;
-	}
-
 	/**
 	 * Standard constructor, which creates a SASTPSolution out of a SASTProblem,
 	 * using a greedy heuristic approach.
 	 * 
 	 * @param problem
 	 *            a SASTProblem representing the problem instance
+	 * @param random
+	 *            boolean if the choosing of the next spot happens in a random
+	 *            way
 	 */
-	public GreedyConstruction(SASTProblem problem) {
+	public SASTPSolution performGreedyConstruction(SASTProblem problem, boolean random) {
 		this.problem = problem;
 
 		// timeCounter can be printed for the user, to see that the system is
@@ -132,11 +131,17 @@ public class GreedyConstruction {
 				}
 			}
 			double score;
-			double maxScore = 0.0;
+			double maxScore = -1000.0;
 			Candidate bestCandidate = null;
 			// If no candidates are found the greedy search is over.
 			if (!candidates.isEmpty()) {
 				// Select the best candidate with the best score.
+				double sptConst = 10.0;
+				double spsConst = 10.0;
+				if (random) {
+					sptConst = Math.random() * 10.0;
+					spsConst = Math.random() * 10.0;
+				}
 				for (Candidate cand : candidates) {
 					/*
 					 * The score is the satisfaction per time normalized with
@@ -144,13 +149,13 @@ public class GreedyConstruction {
 					 * iteration multiplied with a constant factor and
 					 * summarized with the satisfaction per stamina normalized
 					 * with the maximum satisfaction per stamina of the current
-					 * iteration multiplied with a constant factor.
+					 * iteration multiplied with a constant/random factor.
 					 */
-					score = (cand.getSattime() / maxSatisfactionPerTime * 10)
-							+ (cand.getSatsta() / maxSatisfactionPerStamina * 10);
+					score = (cand.getSattime() / maxSatisfactionPerTime * sptConst)
+							+ (cand.getSatsta() / maxSatisfactionPerStamina * spsConst);
 					if (score > maxScore) {
 						maxScore = score;
-						bestCandidate = cand;
+						bestCandidate = cand;						
 					}
 				}
 			} else {
@@ -162,7 +167,7 @@ public class GreedyConstruction {
 				if (restingAllowed) {
 					// Add the resting time to the visit before.
 					solution.addRest(bestCandidate.getRestTime());
-					
+
 					// Update timeCounter, It is not used by the algorithm!
 					timeCounter = timeCounter - bestCandidate.getRestTime();
 				} else {
@@ -172,20 +177,21 @@ public class GreedyConstruction {
 				// current location.
 				solution.addStop(bestCandidate.getSpot(),
 						bestCandidate.getMethod(), 0.0);
-				
+
 				// Update timeCounter, It is not used by the algorithm!
 				timeCounter = timeCounter
 						- problem.getTravelTime(currentX, currentY,
 								bestCandidate.getSpot().getSpotX(),
 								bestCandidate.getSpot().getSpotY())
 						- bestCandidate.getMethod().getTime();
-				
+
 				currentX = bestCandidate.getSpot().getSpotX();
 				currentY = bestCandidate.getSpot().getSpotY();
 
 			}
-			System.out.println("Time left: "+timeCounter);
+			System.out.println("Time left: " + timeCounter);
 		}
+		return solution;
 	}
 
 	/**
@@ -196,7 +202,7 @@ public class GreedyConstruction {
 	 *            spot, the method time and the travel time back to the start
 	 *            point.
 	 * @param staminaNeeded
-	 *            a double, the stamina needed for the next spot´s method.
+	 *            a double, the stamina needed for the next spotï¿½s method.
 	 * @param restingAllowed
 	 *            a boolean, whether resting is allowed or not.
 	 * @return boolean, whether the next spot is valid to visit.
@@ -235,7 +241,7 @@ public class GreedyConstruction {
 	 *            spot, the method time and the travel time back to the start
 	 *            point.
 	 * @param staminaNeeded
-	 *            a double, the stamina needed for the next spot´s method.
+	 *            a double, the stamina needed for the next spotï¿½s method.
 	 * @param restingAllowed
 	 *            a boolean, whether resting is allowed or not.
 	 * @return double, the needed resting time to visit the spot.

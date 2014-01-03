@@ -1,7 +1,11 @@
 package helpers;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * This class represents an solution for a SASTProblem.
@@ -9,6 +13,7 @@ import java.util.ArrayList;
 public class SASTPSolution {
 	private SASTProblem problem;
 	private ArrayList<Stop> tour = new ArrayList<Stop>();
+	private int iterator;
 
 	/**
 	 * Standard constructor
@@ -19,6 +24,38 @@ public class SASTPSolution {
 	 */
 	public SASTPSolution(SASTProblem problem) {
 		this.problem = problem;
+		iterator = 0;
+	}
+
+	public int getTourSize() {
+		return tour.size();
+	}
+
+	public void setNextStop() {
+		iterator++;
+		if (iterator >= tour.size()) {
+			iterator = 0;
+		}
+	}
+
+	public void setNextStop(int iter) {
+		if (iter < tour.size()) {
+			iterator = iter;
+		} else {
+			iterator = 0;
+		}
+	}
+
+	public Spot getSpot() {
+		return tour.get(iterator).getSpot();
+	}
+
+	public Method getMethod() {
+		return tour.get(iterator).getMethod();
+	}
+
+	public double getRestingTime() {
+		return tour.get(iterator).getRestingTime();
 	}
 
 	/**
@@ -155,14 +192,14 @@ public class SASTPSolution {
 	}
 
 	/**
-	 * Returns a boolean whether the Spot´s Method was already visited
+	 * Returns a boolean whether the Spotï¿½s Method was already visited
 	 * 
 	 * @param spot
 	 *            the spot that is checked whether it was already visited
 	 * @param method
 	 *            the method that is checked whether it was already visited
 	 * 
-	 * @return boolean whether the Spot´s Method was already visited
+	 * @return boolean whether the Spotï¿½s Method was already visited
 	 */
 	public boolean isSpotMethodAlreadyVisited(Spot spot, Method method) {
 		for (int i = 0; i < tour.size(); i++) {
@@ -221,11 +258,19 @@ public class SASTPSolution {
 				problem.getStartX(), problem.getStartY());
 		currentTime = currentTime - (distance / speed);
 		currentSatisfaction = currentSatisfaction - (distance * alpha);
+		// if ((currentStamina < 0.0) || (currentTime < 0.0)
+		// || (currentStamina > maxStamina)
+		// || (roundTwoDecimals(getFinalTimeLeft()) !=
+		// roundTwoDecimals(currentTime))
+		// || (roundTwoDecimals(getFinalSatisfaction()) !=
+		// roundTwoDecimals(currentSatisfaction))
+		// || (roundTwoDecimals(getStaminaLeft()) !=
+		// roundTwoDecimals(currentStamina))) {
+		// return false;
+		// }
 		if ((currentStamina < 0.0) || (currentTime < 0.0)
-				|| (currentStamina > maxStamina)
-				|| (roundTwoDecimals(getFinalTimeLeft()) != roundTwoDecimals(currentTime))
-				|| (roundTwoDecimals(getFinalSatisfaction()) != roundTwoDecimals(currentSatisfaction))
-				|| (roundTwoDecimals(getStaminaLeft()) != roundTwoDecimals(currentStamina))) {
+				|| (currentStamina > maxStamina) || getFinalTimeLeft() < 0.0
+				|| getStaminaLeft() < 0.0 || getStaminaLeft() > maxStamina) {
 			return false;
 		}
 		return true;
@@ -236,6 +281,46 @@ public class SASTPSolution {
 		return Double.valueOf(twoDForm.format(d).replace(',', '.'));
 	}
 
+	/**
+	 * Returns all unused Spots of the solution.
+	 * 
+	 * @return ArrayList<Spot>, of all unused Spots
+	 */
+	public ArrayList<Spot> getUnusedSpots() {
+		ArrayList<Spot> unusedSpots = new ArrayList<Spot>();
+		ArrayList<Spot> spots = new ArrayList<Spot>(problem.getSpots().values());
+		int iter = 0;
+		while (iter < tour.size()) {
+			if (!spots.contains(tour.get(iter).getSpot())) {
+				unusedSpots.add(tour.get(iter).getSpot());
+			}
+			iter++;
+		}
+		return unusedSpots;
+	}
+
+	public void saveSolution(String filename) {
+		PrintWriter writer;
+		try {
+			writer = new PrintWriter(filename, "UTF-8");
+			writer.println("#Solution to SASTP");
+			writer.println("#Spot Method Resting Time");
+			for (int i = 0; i < tour.size(); i++) {
+				writer.println((int) tour.get(i).getSpot().getID() + " "
+						+ (int) tour.get(i).getMethod().getID() + " "
+						+ tour.get(i).getRestingTime());
+			}
+			writer.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+	
 	/*
 	 * public void checkSolution() { double startStamina =
 	 * problem.getInitstamina(); double maxStamina = problem.getMaxstamina();
@@ -266,35 +351,4 @@ public class SASTPSolution {
 	 * System.out.println("End Stamina: " + currentStamina + ", End Time: " +
 	 * currentTime); }
 	 */
-
-	/**
-	 * Represents a stop of the tour. (which Spot, Method and resting time)
-	 */
-	private class Stop {
-		private Spot spot;
-		private Method method;
-		double restingTime;
-
-		public Spot getSpot() {
-			return spot;
-		}
-
-		public Method getMethod() {
-			return method;
-		}
-
-		public double getRestingTime() {
-			return restingTime;
-		}
-
-		public void setRestingTime(double restingTime) {
-			this.restingTime = restingTime;
-		}
-
-		private Stop(Spot spot, Method method, double restingTime) {
-			this.spot = spot;
-			this.method = method;
-			this.restingTime = restingTime;
-		}
-	}
 }
