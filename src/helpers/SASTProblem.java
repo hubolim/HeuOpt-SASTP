@@ -67,6 +67,7 @@ public class SASTProblem {
 		BufferedReader br = new BufferedReader(fr);
 		String line = "";
 		int counter = 1;
+		int methodCounter = 0;
 		boolean invalidInput = false;
 		Spot currentSpot = null;
 		while ((line = br.readLine()) != null && !invalidInput) {
@@ -112,7 +113,9 @@ public class SASTProblem {
 						currentSpot.addMethod(splittedInput[1],
 								Double.parseDouble(splittedInput[2]),
 								Double.parseDouble(splittedInput[3]),
-								Double.parseDouble(splittedInput[4]));
+								Double.parseDouble(splittedInput[4]),
+								methodCounter);
+						methodCounter++;
 					} else {
 						invalidInput = true;
 					}
@@ -178,10 +181,11 @@ public class SASTProblem {
 	 * 
 	 * @return double, travel satisfaction between two Spots
 	 */
-	public double getTravelSatisfactionCost(double x1, double y1, double x2, double y2) {
+	public double getTravelSatisfactionCost(double x1, double y1, double x2,
+			double y2) {
 		return alpha * getDistance(x1, y1, x2, y2);
 	}
-	
+
 	/**
 	 * Returns the satisfaction cost of a travel between two Spots
 	 * 
@@ -214,7 +218,7 @@ public class SASTProblem {
 	public double getTravelTime(double x1, double y1, double x2, double y2) {
 		return getDistance(x1, y1, x2, y2) / speed;
 	}
-	
+
 	/**
 	 * Returns the travel time between two Spots
 	 * 

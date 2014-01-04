@@ -61,10 +61,11 @@ public class Spot {
 	 * @see Method
 	 */
 	public void addMethod(String name, double satisfaction, double time,
-			double stamina) {
-		String[] splittedName = name.split(":");
-		double mID = Double.parseDouble(splittedName[1]);
-		Method newMethod = new Method(mID, name, satisfaction, time, stamina);
+			double stamina, int methodCounter) {
+		// String[] splittedName = name.split(":");
+		// double mID = Double.parseDouble(splittedName[1]);
+		double mID = (double) methodCounter;
+		Method newMethod = new Method(mID, name, satisfaction, time, stamina, this);
 		methods.put(mID, newMethod);
 	}
 
